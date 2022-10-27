@@ -1,4 +1,113 @@
-*{
+* {
     padding: 0;
     margin: 0;
+}
+
+html{
+    overflow-y: scroll;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100vh;
+}
+
+body {
+    /* background: linear-gradient(130deg, #5eba9c, #065e70); */
+}
+
+main {
+    background: linear-gradient(130deg, #5eba9c, #065e70);
+    min-height: calc(100vh - 64px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 20px;
+}
+
+nav {
+    background: #094454;
+}
+
+.navbar-fixed {
+    height: 64px;
+}
+
+.brand-logo {
+    display: flex !important;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.brand-logo>img {
+    width: 200px;
+    margin-left: 20px;
+}
+
+.cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.card {
+    width: 15vw;
+    flex-basis: 26%;
+}
+
+.card-action {
+    display: flex;
+    justify-content: center;
+}
+
+.card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
+    margin-right: 0;
+    color: #61CFED;
+}
+
+.card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating):hover {
+    color: #5EBA9C;
+}
+
+.blue-grey.darken-1 {
+    background-color: #094454 !important;
+}
+
+.vidas {
+    width: 80vw;
+}
+
+.planText{
+    color: white;
+}
+
+.collapsible-body {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(4px);
+    /* border-radius: 10px; */
+}
+
+.leftSide{
+    display: flex;
+}
+
+.collapsible-header{
+    display: flex;
+    justify-content: space-between;
+}
+
+#dropwdownArrow{
+    margin-right: 0;
+}
+
+.bottomActions{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+input, label{
+    color: white !important;
 }
