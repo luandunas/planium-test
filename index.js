@@ -1,12 +1,21 @@
-const express = require('express')
+const express = require('express');
 
-const app = express()
-const port = 3000
+//importando jsons
+const prices = require('./api/prices.json');
+const plans = require('./api/plans.json');
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+const app = express();
+app.use(express.static('public'))
+const port = 3000;
+
+app.get('/api/prices', (req, res) => {
+    res.json(prices);
+});
+
+app.get('/api/plans', (req, res) => {
+    res.json(plans);
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+    console.log(`Example app listening on port ${port}`);
+});
