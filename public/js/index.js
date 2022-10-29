@@ -1,7 +1,7 @@
 var plans;
 var price;
 var choosedPlan;
-
+var numberPattern = /\d+/g;
 //listando planos na pagina inicial
 function getPlans() {
     fetch("http://localhost:3000/api/plans").then(function (res) {
@@ -45,7 +45,7 @@ function checkout(e, planCodigo) {
         <h3 class="planText">${result[0].nome}</h3>
         <div class="columnsTable"><p class="columnName">Nome</p><p class="columnAge">Idade</p><p class="columnCurrency">R$</p></div>
         <ul class="collapsible">
-        <li id="personDiv${document.querySelectorAll('.vidas > .collapsible > li').length}" class="active">
+        <li id="personDiv${document.querySelectorAll('.vidas > .collapsible > li').length}" data-belongTo="${document.querySelectorAll('.vidas > .collapsible > li').length}" class="active">
         <div class="collapsible-header"><div class="leftSide"><i class="material-icons">person</i>Titular</div><div class="personAge"></div><div class="personCurrency"></div><i class="material-icons" id="dropwdownArrow">expand_more</i></div>
             <div class="collapsible-body">
                 <form class="form">
@@ -70,14 +70,46 @@ function checkout(e, planCodigo) {
     document.getElementsByTagName("main")[0].insertAdjacentHTML('beforeend', checkoutHtml);
     document.getElementsByTagName("main")[0].style.alignItems = "unset";
 
+    updatePlanPrices(document.querySelectorAll('.vidas > .collapsible > li'));
+
     //inicializando elementos collapsible do materialize
     var elems = document.querySelectorAll('.collapsible');
     var instances = M.Collapsible.init(elems)
 }
 
+function updatePlanPrices(personsToUpdate) {
+    console.log("UPDATE PLANS")
+    personsToUpdate.forEach(function (person) {
+        let collapsibleCurrency = person.querySelector(".personCurrency");
+        let personAge = person.querySelector(`#idade${person.getAttribute("data-belongTo")}`).value != "" ? parseInt(person.querySelector(`#idade${person.getAttribute("data-belongTo")}`).value) : 0
+        console.log(personAge)
+        prices.filter(function (item) {
+            // item => item.codigo === choosedPlan
+            for (let key in item) {
+                if (key == "codigo" && item[key] == choosedPlan) {
+                    if (personsToUpdate.length >= item["minimo_vidas"]) {
+                        console.log("INSIDE < 17")
+                        if (personAge >= 0 && personAge <= 17) {
+                            collapsibleCurrency.textContent = `R$ ${item.faixa1},00`
+                        }
+
+                        if (personAge >= 18 && personAge <= 40) {
+                            collapsibleCurrency.textContent = `R$ ${item.faixa2},00`
+                        }
+
+                        if (personAge > 40) {
+                            collapsibleCurrency.textContent = `R$ ${item.faixa3},00`
+                        }
+                    }
+                }
+            }
+        });
+    })
+}
+
 function addPerson() {
     let personToInsert = `
-    <li id="personDiv${document.querySelectorAll('.vidas > .collapsible > li').length}">
+    <li id="personDiv${document.querySelectorAll('.vidas > .collapsible > li').length}" data-belongTo="${document.querySelectorAll('.vidas > .collapsible > li').length}">
     <div class="collapsible-header"><div class="leftSide"><i class="material-icons">person</i>Dependente</div><div class="personAge"></div><div class="personCurrency"></div><i class="material-icons" id="dropwdownArrow">expand_more</i></div>
         <div class="collapsible-body">
             <form class="form">
@@ -95,6 +127,7 @@ function addPerson() {
     </li>
     `
     document.querySelector('.vidas > .collapsible').insertAdjacentHTML('beforeend', personToInsert);
+    updatePlanPrices(document.querySelectorAll('.vidas > .collapsible > li'));
 }
 
 function writeTitleName(event) {
@@ -115,9 +148,15 @@ function writeTitleName(event) {
 }
 
 function writeTitleAge(event) {
+
     let collapsibleAge = document.querySelector(`#personDiv${event.target.getAttribute('data-belongTo')} > .collapsible-header > .personAge`);
     setTimeout(function () {
-        let personAge = document.getElementById(`idade${event.target.getAttribute("data-belongTo")}`).value;
+        let personAge = "";
+        if(document.getElementById(`idade${event.target.getAttribute("data-belongTo")}`).value != ""){
+            personAge = document.getElementById(`idade${event.target.getAttribute("data-belongTo")}`).value.match(numberPattern)
+        }
+        document.getElementById(`idade${event.target.getAttribute("data-belongTo")}`).value = personAge
+        console.log(personAge)
         if (personAge == "") {
             collapsibleAge.textContent = ""
         } else {
@@ -136,21 +175,21 @@ function setCurrency(event) {
         let vidas = parseInt(document.querySelectorAll('.vidas > .collapsible > li').length)
         console.log(vidas)
         let i = 0;
-        let result = prices.filter(function(item){
+        prices.filter(function (item) {
             // item => item.codigo === choosedPlan
-            for (let key in item){
-                if(key == "codigo" && item[key] == choosedPlan){
-                    if(vidas >= item["minimo_vidas"]){
-                        if(personAge >= 0 && personAge <= 17){
-                            collapsibleCurrency.textContent = item.faixa1
+            for (let key in item) {
+                if (key == "codigo" && item[key] == choosedPlan) {
+                    if (vidas >= item["minimo_vidas"]) {
+                        if (personAge >= 0 && personAge <= 17) {
+                            collapsibleCurrency.textContent = `R$ ${item.faixa1},00`
                         }
 
-                        if(personAge >= 18 && personAge <= 40){
-                            collapsibleCurrency.textContent = item.faixa2
+                        if (personAge >= 18 && personAge <= 40) {
+                            collapsibleCurrency.textContent = `R$ ${item.faixa2},00`
                         }
 
-                        if(personAge > 40){
-                            collapsibleCurrency.textContent = item.faixa3
+                        if (personAge > 40) {
+                            collapsibleCurrency.textContent = `R$ ${item.faixa3},00`
                         }
                     }
                 }

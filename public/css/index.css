@@ -23,7 +23,8 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding-bottom: 20px;
+    /* padding: 5rem;
+    box-sizing: border-box; */
 }
 
 nav {
@@ -50,6 +51,7 @@ nav {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-evenly;
+    padding: 5rem;
 }
 
 .card {
@@ -137,8 +139,13 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-bottom: 5rem;
 }
 
 input, label{
     color: white !important;
+}
+
+.page-footer{
+    background-color: #094454;
 }
