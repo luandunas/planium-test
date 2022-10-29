@@ -57,6 +57,11 @@ nav {
     flex-basis: 26%;
 }
 
+.card:hover{
+    outline: solid 1px;
+    outline-color: rgba(255, 255, 255, 1);
+}
+
 .card-action {
     display: flex;
     justify-content: center;
@@ -71,12 +76,38 @@ nav {
     color: #5EBA9C;
 }
 
+.planFaixa{
+    margin-bottom: 15px !important;
+}
+
 .blue-grey.darken-1 {
     background-color: #094454 !important;
 }
 
 .vidas {
     width: 80vw;
+}
+
+.columnsTable{
+    display: flex;
+    color: lightgray;
+    /* padding: 1rem; */
+}
+
+.columnName{
+    width: 75%;
+}
+
+.leftSide{
+    width: 75%
+}
+
+.columnAge, .personAge{
+    width: 10%;
+}
+
+.columnCurrency, .personCurrency{
+    width: 10%;
 }
 
 .planText{
