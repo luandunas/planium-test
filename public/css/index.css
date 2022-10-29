@@ -135,6 +135,11 @@ nav {
     margin-right: 0;
 }
 
+#totalCurrency{
+    color: white;
+    font-weight: bold;
+}
+
 .bottomActions{
     display: flex;
     justify-content: space-between;

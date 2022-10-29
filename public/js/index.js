@@ -1,7 +1,11 @@
 var plans;
 var price;
 var choosedPlan;
+var elems;
+var instances;
 var numberPattern = /\d+/g;
+
+
 //listando planos na pagina inicial
 function getPlans() {
     fetch("http://localhost:3000/api/plans").then(function (res) {
@@ -64,17 +68,18 @@ function checkout(e, planCodigo) {
 
         </ul>
 
-        <div class="bottomActions"><a class="waves-effect waves-light btn" onclick="addPerson()"><i class="material-icons right">add</i>Adicionar</a> <p>TOTAL:</p> <a class="waves-effect waves-light btn"><i class="material-icons right">navigate_next</i>Continuar</a></div>
+        <div class="bottomActions"><a class="waves-effect waves-light btn" onclick="addPerson()"><i class="material-icons right">add</i>Adicionar</a> <p id="totalCurrency">TOTAL:</p> <a class="waves-effect waves-light btn" id="submitButton" onclick="subimitAllForms()"><i class="material-icons right">navigate_next</i>Continuar</a></div>
     </div>
     `
     document.getElementsByTagName("main")[0].insertAdjacentHTML('beforeend', checkoutHtml);
     document.getElementsByTagName("main")[0].style.alignItems = "unset";
 
     updatePlanPrices(document.querySelectorAll('.vidas > .collapsible > li'));
+    setTotalCurrency();
 
     //inicializando elementos collapsible do materialize
-    var elems = document.querySelectorAll('.collapsible');
-    var instances = M.Collapsible.init(elems)
+    elems = document.querySelectorAll('.collapsible');
+    instances = M.Collapsible.init(elems)
 }
 
 function updatePlanPrices(personsToUpdate) {
@@ -90,14 +95,17 @@ function updatePlanPrices(personsToUpdate) {
                     if (personsToUpdate.length >= item["minimo_vidas"]) {
                         console.log("INSIDE < 17")
                         if (personAge >= 0 && personAge <= 17) {
+                            collapsibleCurrency.setAttribute("data-personCurrency", item.faixa1)
                             collapsibleCurrency.textContent = `R$ ${item.faixa1},00`
                         }
 
                         if (personAge >= 18 && personAge <= 40) {
+                            collapsibleCurrency.setAttribute("data-personCurrency", item.faixa2)
                             collapsibleCurrency.textContent = `R$ ${item.faixa2},00`
                         }
 
                         if (personAge > 40) {
+                            collapsibleCurrency.setAttribute("data-personCurrency", item.faixa3)
                             collapsibleCurrency.textContent = `R$ ${item.faixa3},00`
                         }
                     }
@@ -128,6 +136,7 @@ function addPerson() {
     `
     document.querySelector('.vidas > .collapsible').insertAdjacentHTML('beforeend', personToInsert);
     updatePlanPrices(document.querySelectorAll('.vidas > .collapsible > li'));
+    setTotalCurrency();
 }
 
 function writeTitleName(event) {
@@ -152,7 +161,7 @@ function writeTitleAge(event) {
     let collapsibleAge = document.querySelector(`#personDiv${event.target.getAttribute('data-belongTo')} > .collapsible-header > .personAge`);
     setTimeout(function () {
         let personAge = "";
-        if(document.getElementById(`idade${event.target.getAttribute("data-belongTo")}`).value != ""){
+        if (document.getElementById(`idade${event.target.getAttribute("data-belongTo")}`).value != "") {
             personAge = document.getElementById(`idade${event.target.getAttribute("data-belongTo")}`).value.match(numberPattern)
         }
         document.getElementById(`idade${event.target.getAttribute("data-belongTo")}`).value = personAge
@@ -164,7 +173,7 @@ function writeTitleAge(event) {
         }
 
         // console.log(choosedPlan, personAge)
-        setCurrency(event)
+        setCurrency(event);
     }, 1)
 }
 
@@ -181,14 +190,17 @@ function setCurrency(event) {
                 if (key == "codigo" && item[key] == choosedPlan) {
                     if (vidas >= item["minimo_vidas"]) {
                         if (personAge >= 0 && personAge <= 17) {
+                            collapsibleCurrency.setAttribute("data-personCurrency", item.faixa1)
                             collapsibleCurrency.textContent = `R$ ${item.faixa1},00`
                         }
 
                         if (personAge >= 18 && personAge <= 40) {
+                            collapsibleCurrency.setAttribute("data-personCurrency", item.faixa2)
                             collapsibleCurrency.textContent = `R$ ${item.faixa2},00`
                         }
 
                         if (personAge > 40) {
+                            collapsibleCurrency.setAttribute("data-personCurrency", item.faixa3)
                             collapsibleCurrency.textContent = `R$ ${item.faixa3},00`
                         }
                     }
@@ -196,8 +208,64 @@ function setCurrency(event) {
             }
         });
         // console.log(result)
-
+        setTotalCurrency();
     }, 1)
+}
+
+function setTotalCurrency() {
+    let totalCurrency = 0;
+    document.querySelectorAll(".personCurrency").forEach(function (personCurrency) {
+        let currentPersonCurrency = parseInt(personCurrency.getAttribute("data-personCurrency"));
+        totalCurrency += currentPersonCurrency
+    });
+    document.getElementById("totalCurrency").textContent = `TOTAL: R$ ${totalCurrency},00`
+}
+
+function generateJsonBeneficiarios() {
+    // let totalCurrency = 0;
+    let totalVidas = document.querySelectorAll('.vidas > .collapsible > li').length;
+    let beneficiariosJson = {
+        totalBeneficiarios: totalVidas,
+        // totalValor: 0,
+        beneficiarios: []
+    };
+
+    // document.querySelectorAll(".personCurrency").forEach(function (personCurrency) {
+    //     let currentPersonCurrency = parseInt(personCurrency.getAttribute("data-personCurrency"));
+    //     totalCurrency += currentPersonCurrency
+    // });
+
+    document.querySelectorAll('.vidas > .collapsible > li').forEach(function (person) {
+        console.log(person)
+        // let personCurrency = person.querySelector(".personCurrency");
+        // let currentPersonCurrency = parseInt(personCurrency.getAttribute("data-personCurrency"));
+        let personName = person.querySelector(`#name${person.getAttribute("data-belongTo")}`).value;
+        let personAge = person.querySelector(`#idade${person.getAttribute("data-belongTo")}`).value ? parseInt(person.querySelector(`#idade${person.getAttribute("data-belongTo")}`).value) : 0;
+
+        console.log(personName, personAge, /*currentPersonCurrency*/ totalVidas, totalCurrency)
+        beneficiariosJson.beneficiarios.push({
+            nome: personName,
+            idade: personAge,
+            plano: `reg${choosedPlan}`,
+            // valor: currentPersonCurrency,
+        });
+    });
+
+    // beneficiariosJson.totalValor = totalCurrency;
+    console.log(beneficiariosJson)
+
+}
+
+function subimitAllForms() {
+    for (item of document.getElementsByTagName("input")) {
+        if (item.value == "") {
+            instances[0].open(item.getAttribute("data-belongTo"));
+            item.focus();
+            return;
+        }
+    }
+    generateJsonBeneficiarios();
+    //document.forms[document.forms.length - 1].submit();
 }
 
 //consumindo APIS
