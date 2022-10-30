@@ -3,7 +3,13 @@ var price;
 var choosedPlan;
 var elems;
 var instances;
+var modalInstances;
 var numberPattern = /\d+/g;
+
+document.addEventListener('DOMContentLoaded', function () {
+    var elems = document.querySelectorAll('.modal');
+    modalInstances = M.Modal.init(elems);
+});
 
 
 //listando planos na pagina inicial
@@ -50,7 +56,7 @@ function checkout(e, planCodigo) {
         <div class="columnsTable"><p class="columnName">Nome</p><p class="columnAge">Idade</p><p class="columnCurrency">R$</p></div>
         <ul class="collapsible">
         <li id="personDiv${document.querySelectorAll('.vidas > .collapsible > li').length}" data-belongTo="${document.querySelectorAll('.vidas > .collapsible > li').length}" class="active">
-        <div class="collapsible-header"><div class="leftSide"><i class="material-icons">person</i>Titular</div><div class="personAge"></div><div class="personCurrency"></div><i class="material-icons" id="dropwdownArrow">expand_more</i></div>
+        <div class="collapsible-header"><div class="leftSide"><i class="material-icons">person</i>Titular</div><div class="personAge"></div><div class="personCurrency"></div><i class="material-icons" class="dropwdownArrow">expand_more</i></div>
             <div class="collapsible-body">
                 <form class="form">
                     <div class="input-field">
@@ -68,7 +74,7 @@ function checkout(e, planCodigo) {
 
         </ul>
 
-        <div class="bottomActions"><a class="waves-effect waves-light btn" onclick="addPerson()"><i class="material-icons right">add</i>Adicionar</a> <p id="totalCurrency">TOTAL:</p> <a class="waves-effect waves-light btn" id="submitButton" onclick="subimitAllForms()"><i class="material-icons right">navigate_next</i>Continuar</a></div>
+        <div class="bottomActions"><a class="waves-effect waves-light btn" onclick="addPerson()"><i class="material-icons right">add</i>Adicionar</a> <p id="totalCurrency">TOTAL:</p> <a class="waves-effect waves-light btn" id="submitButton" onclick="submitAllForms()"><i class="material-icons right">navigate_next</i>Continuar</a></div>
     </div>
     `
     document.getElementsByTagName("main")[0].insertAdjacentHTML('beforeend', checkoutHtml);
@@ -252,19 +258,95 @@ function generateJsonBeneficiarios() {
     });
 
     // beneficiariosJson.totalValor = totalCurrency;
-    console.log(beneficiariosJson)
+
+    fetch("http://localhost:3000/api/beneficiarios",
+        {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(beneficiariosJson)
+        }
+    ).then(function (res) {
+        if (res.status == 200) {
+            return res.json();
+        } else {
+
+        }
+    }).then(function (data) {
+        console.log(data.status)
+    })
 
 }
 
-function subimitAllForms() {
+function generateJsonProposta() {
+    let totalCurrency = 0;
+    let totalVidas = document.querySelectorAll('.vidas > .collapsible > li').length;
+    let propostaJson = {
+        totalBeneficiarios: totalVidas,
+        totalValor: 0,
+        beneficiarios: []
+    };
+
+    document.querySelectorAll(".personCurrency").forEach(function (personCurrency) {
+        let currentPersonCurrency = parseInt(personCurrency.getAttribute("data-personCurrency"));
+        totalCurrency += currentPersonCurrency
+    });
+
+    document.querySelectorAll('.vidas > .collapsible > li').forEach(function (person) {
+        console.log(person)
+        let personCurrency = person.querySelector(".personCurrency");
+        let currentPersonCurrency = parseInt(personCurrency.getAttribute("data-personCurrency"));
+        let personName = person.querySelector(`#name${person.getAttribute("data-belongTo")}`).value;
+        let personAge = person.querySelector(`#idade${person.getAttribute("data-belongTo")}`).value ? parseInt(person.querySelector(`#idade${person.getAttribute("data-belongTo")}`).value) : 0;
+
+        console.log(personName, personAge, /*currentPersonCurrency*/ totalVidas, totalCurrency)
+        propostaJson.beneficiarios.push({
+            nome: personName,
+            idade: personAge,
+            plano: `reg${choosedPlan}`,
+            valor: currentPersonCurrency,
+        });
+    });
+
+    propostaJson.totalValor = totalCurrency;
+
+    fetch("http://localhost:3000/api/proposta",
+        {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(propostaJson)
+        }
+    ).then(function (res) {
+        if (res.status == 200) {
+            return res.json();
+        } else {
+
+        }
+    }).then(function (data) {
+        console.log(data.status)
+    })
+
+}
+
+function submitAllForms() {
     for (item of document.getElementsByTagName("input")) {
         if (item.value == "") {
-            instances[0].open(item.getAttribute("data-belongTo"));
-            item.focus();
-            return;
+            for (let i = 0; i < document.querySelectorAll(".collapsible > li").length; i++) {
+                if (document.querySelectorAll(".collapsible > li")[i].getAttribute("data-belongTo") == item.getAttribute("data-belongTo")) {
+                    instances[0].open(i);
+                    item.focus();
+                    return;
+                }
+            }
         }
     }
     generateJsonBeneficiarios();
+    modalInstances[0].open();
     //document.forms[document.forms.length - 1].submit();
 }
 
