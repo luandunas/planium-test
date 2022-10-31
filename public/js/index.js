@@ -6,6 +6,8 @@ var instances;
 var modalInstances;
 var numberPattern = /\d+/g;
 
+
+//inicializando elemento MODAL do materialize.
 document.addEventListener('DOMContentLoaded', function () {
     var elems = document.querySelectorAll('.modal');
     modalInstances = M.Modal.init(elems);
@@ -52,6 +54,7 @@ function getPrices() {
         throw new Error('Something went wrong');
     }).then(function (data) {
         prices = data;
+        //a função getPlans é chamada dentro do fetch getPrices() para evitar erro caso o servidor demore a responder na requisição da getPrices();
         getPlans();
     }).catch((error) => {
         alert("Erro ao requisitar API, verifique o servidor e tente novamente!");
@@ -59,6 +62,7 @@ function getPrices() {
     });
 }
 
+//criando tela de checkout ao escolher um plano
 function checkout(e, planCodigo) {
     choosedPlan = planCodigo;
     document.getElementById('cards').remove();
@@ -101,6 +105,7 @@ function checkout(e, planCodigo) {
     instances = M.Collapsible.init(elems)
 }
 
+//função para atualizar os preços e vidas ao adicionar uma pessoa nova e/ou fazer parte das condições dos planos.
 function updatePlanPrices(personsToUpdate) {
     console.log("UPDATE PLANS")
     personsToUpdate.forEach(function (person) {
@@ -108,11 +113,9 @@ function updatePlanPrices(personsToUpdate) {
         let personAge = person.querySelector(`#idade${person.getAttribute("data-belongTo")}`).value != "" ? parseInt(person.querySelector(`#idade${person.getAttribute("data-belongTo")}`).value) : 0
         console.log(personAge)
         prices.filter(function (item) {
-            // item => item.codigo === choosedPlan
             for (let key in item) {
                 if (key == "codigo" && item[key] == choosedPlan) {
                     if (personsToUpdate.length >= item["minimo_vidas"]) {
-                        console.log("INSIDE < 17")
                         if (personAge >= 0 && personAge <= 17) {
                             collapsibleCurrency.setAttribute("data-personCurrency", item.faixa1)
                             collapsibleCurrency.textContent = `R$ ${item.faixa1},00`
@@ -134,6 +137,7 @@ function updatePlanPrices(personsToUpdate) {
     })
 }
 
+//função para adicionar pessoas
 function addPerson() {
     let personToInsert = `
     <li id="personDiv${document.querySelectorAll('.vidas > .collapsible > li').length}" data-belongTo="${document.querySelectorAll('.vidas > .collapsible > li').length}">
@@ -158,6 +162,7 @@ function addPerson() {
     setTotalCurrency();
 }
 
+//função para escrever o nome da pessoa no item collapsible.
 function writeTitleName(event) {
     let collapsibleTitle = document.querySelector(`#personDiv${event.target.getAttribute('data-belongTo')} > .collapsible-header > .leftSide`).childNodes[1];
     setTimeout(function () {
@@ -172,11 +177,10 @@ function writeTitleName(event) {
             collapsibleTitle.textContent = document.getElementById(`name${event.target.getAttribute("data-belongTo")}`).value
         }
     }, 1)
-    // document.querySelector(`#titular${e.currentTarget.getAttribute('data-belongTo')} > .collapsible-header > leftSide`).innerText = e.currentTarget.value
 }
 
+//função para escrever a idade da pessoa no item collapsible.
 function writeTitleAge(event) {
-
     let collapsibleAge = document.querySelector(`#personDiv${event.target.getAttribute('data-belongTo')} > .collapsible-header > .personAge`);
     setTimeout(function () {
         let personAge = "";
@@ -190,12 +194,11 @@ function writeTitleAge(event) {
         } else {
             collapsibleAge.textContent = personAge
         }
-
-        // console.log(choosedPlan, personAge)
         setCurrency(event);
     }, 1)
 }
 
+//função para definir o preço por vida no plano.
 function setCurrency(event) {
     let collapsibleCurrency = document.querySelector(`#personDiv${event.target.getAttribute('data-belongTo')} > .collapsible-header > .personCurrency`);
     setTimeout(function () {
@@ -204,7 +207,6 @@ function setCurrency(event) {
         console.log(vidas)
         let i = 0;
         prices.filter(function (item) {
-            // item => item.codigo === choosedPlan
             for (let key in item) {
                 if (key == "codigo" && item[key] == choosedPlan) {
                     if (vidas >= item["minimo_vidas"]) {
@@ -226,11 +228,11 @@ function setCurrency(event) {
                 }
             }
         });
-        // console.log(result)
         setTotalCurrency();
     }, 1)
 }
 
+//função para definir o valor total das vidas do plano.
 function setTotalCurrency() {
     let totalCurrency = 0;
     document.querySelectorAll(".personCurrency").forEach(function (personCurrency) {
@@ -240,24 +242,16 @@ function setTotalCurrency() {
     document.getElementById("totalCurrency").textContent = `TOTAL: R$ ${totalCurrency},00`
 }
 
+//função para gerar o json beneficiarios e enviar ao servidor.
 function generateJsonBeneficiarios() {
-    // let totalCurrency = 0;
     let totalVidas = document.querySelectorAll('.vidas > .collapsible > li').length;
     let beneficiariosJson = {
         totalBeneficiarios: totalVidas,
-        // totalValor: 0,
         beneficiarios: []
     };
 
-    // document.querySelectorAll(".personCurrency").forEach(function (personCurrency) {
-    //     let currentPersonCurrency = parseInt(personCurrency.getAttribute("data-personCurrency"));
-    //     totalCurrency += currentPersonCurrency
-    // });
-
     document.querySelectorAll('.vidas > .collapsible > li').forEach(function (person) {
         console.log(person)
-        // let personCurrency = person.querySelector(".personCurrency");
-        // let currentPersonCurrency = parseInt(personCurrency.getAttribute("data-personCurrency"));
         let personName = person.querySelector(`#name${person.getAttribute("data-belongTo")}`).value;
         let personAge = person.querySelector(`#idade${person.getAttribute("data-belongTo")}`).value ? parseInt(person.querySelector(`#idade${person.getAttribute("data-belongTo")}`).value) : 0;
 
@@ -266,11 +260,8 @@ function generateJsonBeneficiarios() {
             nome: personName,
             idade: personAge,
             plano: `reg${choosedPlan}`,
-            // valor: currentPersonCurrency,
         });
     });
-
-    // beneficiariosJson.totalValor = totalCurrency;
 
     fetch("./api/beneficiarios",
         {
@@ -294,6 +285,7 @@ function generateJsonBeneficiarios() {
 
 }
 
+//função para gerar o json proposta e enviar ao servidor.
 function generateJsonProposta() {
     let totalCurrency = 0;
     let totalVidas = document.querySelectorAll('.vidas > .collapsible > li').length;
@@ -350,6 +342,7 @@ function generateJsonProposta() {
 
 }
 
+//função para validar e enviar os formularios.
 function submitAllForms() {
     for (item of document.getElementsByTagName("input")) {
         if (item.value == "") {
@@ -364,7 +357,6 @@ function submitAllForms() {
     }
     generateJsonBeneficiarios();
     modalInstances[0].open();
-    //document.forms[document.forms.length - 1].submit();
 }
 
 //consumindo APIS
