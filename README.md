@@ -18,7 +18,7 @@
         </li>
         <li>Acessar o servidor utilizando a porta <strong>3000</strong>
             <ul>
-                <li>E.g <a href="#">https://localhost:3000/</a></li>
+                <li>e.g. <a href="#">https://localhost:3000/</a></li>
             </ul>
         </li>
     </ul>
