@@ -9,6 +9,15 @@ const app = express();
 app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        // console.error(err);
+        return res.status(400).send({ status: 404, message: err.message }); // Bad request
+    }
+    next();
+});
+
 const port = 3000;
 
 app.get('/api/prices', (req, res) => {

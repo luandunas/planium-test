@@ -14,8 +14,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 //listando planos na pagina inicial
 function getPlans() {
-    fetch("http://localhost:3000/api/plans").then(function (res) {
-        return res.json();
+    fetch("./api/plans").then(function (res) {
+        if (res.ok) {
+            return res.json();
+        }
+        alert('Something went wrong');
     }).then(function (data) {
         plans = data;
         plans.forEach(plan => {
@@ -35,15 +38,25 @@ function getPlans() {
         `;
             document.getElementById('cards').insertAdjacentHTML('beforeend', html_to_insert);
         });
-    })
+    }).catch((error) => {
+        alert(error);
+        document.location.reload();
+    });
 }
 
 function getPrices() {
-    fetch("http://localhost:3000/api/prices").then(function (res) {
-        return res.json();
+    fetch("./api/prices").then(function (res) {
+        if (res.ok) {
+            return res.json();
+        }
+        throw new Error('Something went wrong');
     }).then(function (data) {
         prices = data;
-    })
+        getPlans();
+    }).catch((error) => {
+        alert("Erro ao requisitar API, verifique o servidor e tente novamente!");
+        document.location.reload();
+    });
 }
 
 function checkout(e, planCodigo) {
@@ -259,7 +272,7 @@ function generateJsonBeneficiarios() {
 
     // beneficiariosJson.totalValor = totalCurrency;
 
-    fetch("http://localhost:3000/api/beneficiarios",
+    fetch("./api/beneficiarios",
         {
             method: 'POST',
             headers: {
@@ -272,7 +285,8 @@ function generateJsonBeneficiarios() {
         if (res.status == 200) {
             return res.json();
         } else {
-
+            alert("Ocorreu algo de errado com sua requisição!");
+            return res.json();
         }
     }).then(function (data) {
         console.log(data.status)
@@ -312,7 +326,7 @@ function generateJsonProposta() {
 
     propostaJson.totalValor = totalCurrency;
 
-    fetch("http://localhost:3000/api/proposta",
+    fetch("./api/proposta",
         {
             method: 'POST',
             headers: {
@@ -328,7 +342,10 @@ function generateJsonProposta() {
 
         }
     }).then(function (data) {
-        console.log(data.status)
+        if (data.message == "Arquivo criado com sucesso") {
+            alert("Proposta realizada com sucesso!");
+            document.location.reload();
+        }
     })
 
 }
@@ -352,4 +369,3 @@ function submitAllForms() {
 
 //consumindo APIS
 getPrices();
-getPlans();

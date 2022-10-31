@@ -3,7 +3,7 @@
     margin: 0;
 }
 
-html{
+html {
     overflow-y: scroll;
 }
 
@@ -59,7 +59,7 @@ nav {
     flex-basis: 26%;
 }
 
-.card:hover{
+.card:hover {
     outline: solid 1px;
     outline-color: rgba(255, 255, 255, 1);
 }
@@ -78,7 +78,7 @@ nav {
     color: #5EBA9C;
 }
 
-.planFaixa{
+.planFaixa {
     margin-bottom: 15px !important;
 }
 
@@ -90,29 +90,31 @@ nav {
     width: 80vw;
 }
 
-.columnsTable{
+.columnsTable {
     display: flex;
     color: lightgray;
     /* padding: 1rem; */
 }
 
-.columnName{
+.columnName {
     width: 75%;
 }
 
-.leftSide{
+.leftSide {
     width: 75%
 }
 
-.columnAge, .personAge{
+.columnAge,
+.personAge {
     width: 10%;
 }
 
-.columnCurrency, .personCurrency{
+.columnCurrency,
+.personCurrency {
     width: 10%;
 }
 
-.planText{
+.planText {
     color: white;
 }
 
@@ -122,35 +124,89 @@ nav {
     /* border-radius: 10px; */
 }
 
-.leftSide{
+.leftSide {
     display: flex;
 }
 
-.collapsible-header{
+.collapsible-header {
     display: flex;
     /* justify-content: space-between; */
 }
 
-#dropwdownArrow{
+#dropwdownArrow {
     margin-right: 0;
 }
 
-#totalCurrency{
+#totalCurrency {
     color: white;
     font-weight: bold;
 }
 
-.bottomActions{
+.bottomActions {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-bottom: 5rem;
 }
 
-input, label{
+input,
+label {
     color: white !important;
 }
 
-.page-footer{
+.page-footer {
     background-color: #094454;
+}
+
+
+/* mobile styles */
+@media only screen and (max-width: 768px) {
+
+    /* For mobile phones: */
+
+    html {
+        font-size: 12px;
+    }
+
+    h3 {
+        font-size: 2.50rem;
+    }
+
+    .btn,
+    .btn-large,
+    .btn-small,
+    .btn-floating,
+    .btn-large,
+    .btn-small,
+    .btn-flat, #totalCurrency {
+        font-size: 8px;
+        /* outline: 0; */
+    }
+
+    .card {
+        width: 15vw;
+        flex-basis: 100%;
+    }
+
+    .navbar-fixed {
+        height: 52px;
+    }
+
+    .leftSide {
+        width: 35%;
+    }
+
+    .columnName {
+        width: 35%;
+    }
+
+    .columnCurrency,
+    .personCurrency {
+        width: 25%;
+    }
+
+    .columnAge,
+    .personAge {
+        width: 25%;
+    }
 }
